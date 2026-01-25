@@ -42,12 +42,7 @@ Resources:
             - Authorization
             - X-Request-Id
           AllowMethods:
-            - GET
-            - POST
-            - PUT
-            - PATCH
-            - DELETE
-            - OPTIONS
+            - '*'
           AllowCredentials: true
           MaxAge: 86400
 
