@@ -3,8 +3,5 @@
 build-ApiFunction:
 	npm ci
 	npm run build
-	rm -rf node_modules
-	npm ci --omit=dev
-	cp -r dist $(ARTIFACTS_DIR)/
-	cp -r node_modules $(ARTIFACTS_DIR)/
+	cp dist/bundle.mjs $(ARTIFACTS_DIR)/dist/bundle.mjs
 	cp package.json $(ARTIFACTS_DIR)/
