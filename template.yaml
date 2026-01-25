@@ -49,6 +49,9 @@ Resources:
           NODE_ENV: production
           APP_ENV: !Ref Environment
           CORS_ORIGIN: !Ref CorsOrigin
+          DATABASE_URL: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:DATABASE_URL}}"
+          BETTER_AUTH_SECRET: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:BETTER_AUTH_SECRET}}"
+          BETTER_AUTH_URL: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:BETTER_AUTH_URL}}"
 
       Policies:
         - Version: '2012-10-17'
