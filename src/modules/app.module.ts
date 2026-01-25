@@ -37,16 +37,20 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 		LoggerModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService<EnvConfig, true>) => {
-				const isProduction = configService.get("APP_ENV") === "production";
+				const appEnv = configService.get("APP_ENV");
+				const isDevelopment = appEnv === "development";
+				const isDeployed = appEnv === "production" || appEnv === "staging";
 
 				return {
 					pinoHttp: {
 						genReqId: (req) =>
-							(req.headers["x-request-id"] as string) || randomUUID(),
-						level: isProduction ? "info" : "debug",
-						transport: isProduction
-							? undefined
-							: {
+							(req.headers["x-request-id"] as string) ||
+							(req.headers["x-amzn-trace-id"] as string) ||
+							randomUUID(),
+						level: isDevelopment ? "debug" : "info",
+						// Pretty logs for local dev, JSON for deployed environments
+						transport: isDevelopment
+							? {
 									target: "pino-pretty",
 									options: {
 										colorize: true,
@@ -54,8 +58,8 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 										translateTime: "SYS:standard",
 										ignore: "pid,hostname",
 									},
-								},
-						// Customize serializers
+								}
+							: undefined,
 						serializers: {
 							req: (req) => ({
 								id: req.id,
@@ -67,11 +71,16 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 								statusCode: res.statusCode,
 							}),
 						},
-						// Auto-log request/response (ignore noisy health checks)
+						// Add Lambda context to logs in deployed environments
+						mixin: isDeployed
+							? () => ({
+									awsRequestId: process.env._X_AMZN_TRACE_ID,
+									functionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+								})
+							: undefined,
 						autoLogging: {
 							ignore: (req) => req.url === "/health",
 						},
-						// Custom log level based on status code
 						customLogLevel: (_req, res, err) => {
 							if (res.statusCode >= 500 || err) return "error";
 							if (res.statusCode >= 400) return "warn";

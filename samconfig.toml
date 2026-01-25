@@ -1,0 +1,38 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "moneyzent-api"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+
+[staging.deploy.parameters]
+stack_name = "moneyzent-api-staging"
+s3_prefix = "moneyzent-api-staging"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=staging",
+    "CorsOrigin=https://app-staging.moneyzent.com"
+]
+
+[prod.deploy.parameters]
+stack_name = "moneyzent-api-prod"
+s3_prefix = "moneyzent-api-prod"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=prod",
+    "CorsOrigin=https://app.moneyzent.com"
+]

@@ -1,8 +1,15 @@
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
+import { Pool } from "@neondatabase/serverless";
 import { config } from "dotenv";
 
 config();
+
+const pool = new Pool({
+	connectionString: process.env.DATABASE_URL,
+	max: 1,
+	connectionTimeoutMillis: 10000,
+	idleTimeoutMillis: 1000,
+});
 
 export const auth = betterAuth({
 	basePath: "/auth",
@@ -10,9 +17,7 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
-	database: new Pool({
-		connectionString: process.env.DATABASE_URL,
-	}),
+	database: pool,
 	advanced: {
 		database: {
 			generateId: "uuid",

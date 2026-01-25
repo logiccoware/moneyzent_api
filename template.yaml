@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Moneyzent API - Lambda Deployment
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - prod
+  CorsOrigin:
+    Type: String
+    Description: Allowed CORS origin for the frontend
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: nodejs24.x
+    Architectures:
+      - arm64 # Graviton2 - better price/performance
+
+Resources:
+  # Lambda Function with Function URL (FREE - no API Gateway)
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${Environment}-moneyzent-api
+      Handler: dist/lambda.handler
+      CodeUri: .
+      Description: Moneyzent API NestJS Application
+
+      # Function URL (FREE alternative to API Gateway)
+      FunctionUrlConfig:
+        AuthType: NONE # Auth handled by Better Auth in app
+        Cors:
+          AllowOrigins:
+            - !Ref CorsOrigin
+          AllowHeaders:
+            - Content-Type
+            - Authorization
+            - X-Request-Id
+          AllowMethods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          AllowCredentials: true
+          MaxAge: 86400
+
+      Environment:
+        Variables:
+          NODE_ENV: production
+          APP_ENV: !Ref Environment
+          CORS_ORIGIN: !Ref CorsOrigin
+
+      # IAM permissions for Secrets Manager
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource:
+                - !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${Environment}/moneyzent/*
+
+    Metadata:
+      BuildMethod: makefile
+
+Outputs:
+  FunctionUrl:
+    Description: Lambda Function URL (use this as your API endpoint)
+    Value: !GetAtt ApiFunctionUrl.FunctionUrl
+
+  FunctionArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt ApiFunction.Arn

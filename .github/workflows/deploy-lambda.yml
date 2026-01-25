@@ -1,0 +1,88 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '24'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Validate SAM template
+        run: sam validate --lint
+
+      - name: Build SAM application
+        run: sam build
+
+      - name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
+          CORS_ORIGIN="${{ vars.CORS_ORIGIN }}"
+
+          sam deploy \
+            --stack-name moneyzent-api-${ENVIRONMENT} \
+            --parameter-overrides \
+              Environment=${ENVIRONMENT} \
+              CorsOrigin=${CORS_ORIGIN} \
+            --capabilities CAPABILITY_IAM \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
+
+      - name: Get Lambda Function URL
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
+          FUNCTION_URL=$(aws cloudformation describe-stacks \
+            --stack-name moneyzent-api-${ENVIRONMENT} \
+            --query 'Stacks[0].Outputs[?OutputKey==`FunctionUrl`].OutputValue' \
+            --output text)
+          echo "Lambda Function URL: ${FUNCTION_URL}"
