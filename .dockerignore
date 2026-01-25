@@ -1,0 +1,51 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE & Editor
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Environment files (secrets should be injected at runtime)
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Tests
+test
+coverage
+*.spec.ts
+*.e2e-spec.ts
+jest.config.*
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# TypeScript config (needed for build stage)
+# tsconfig*.json
+
+# Misc
+.eslintrc*
+.prettierrc*
+biome.json
