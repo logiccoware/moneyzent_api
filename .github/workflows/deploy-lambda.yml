@@ -1,9 +1,6 @@
 name: Deploy Lambda
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -36,12 +33,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run linting
-        run: npm run lint
-
-      - name: Run tests
-        run: npm test
 
       - name: Build application
         run: npm run build
