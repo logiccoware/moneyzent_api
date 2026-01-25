@@ -26,9 +26,9 @@ async function loadSecrets(): Promise<void> {
 
 	const environment = process.env.APP_ENV;
 
-	if (environment !== "production" && environment !== "staging") {
+	if (environment !== "prod" && environment !== "staging") {
 		throw new Error(
-			`Invalid APP_ENV: ${environment}. Must be "production" or "staging".`,
+			`Invalid APP_ENV: ${environment}. Must be "prod" or "staging".`,
 		);
 	}
 

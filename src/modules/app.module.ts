@@ -39,7 +39,7 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 			useFactory: (configService: ConfigService<EnvConfig, true>) => {
 				const appEnv = configService.get("APP_ENV");
 				const isDevelopment = appEnv === "development";
-				const isDeployed = appEnv === "production" || appEnv === "staging";
+				const isDeployed = appEnv === "prod" || appEnv === "staging";
 
 				return {
 					pinoHttp: {

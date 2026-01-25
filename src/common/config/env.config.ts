@@ -3,7 +3,7 @@ import { z } from "zod";
 export const envSchema = z.object({
 	// App
 	APP_ENV: z
-		.enum(["development", "staging", "production", "test"])
+		.enum(["development", "staging", "prod", "test"])
 		.default("development"),
 	PORT: z.coerce.number().int().positive().optional().default(3000),
 	// PostgreSQL
