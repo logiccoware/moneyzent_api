@@ -58,16 +58,8 @@ jobs:
       - name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
         run: |
           ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
-          CORS_ORIGIN="${{ vars.CORS_ORIGIN }}"
-
-          sam deploy \
-            --stack-name moneyzent-api-${ENVIRONMENT} \
-            --parameter-overrides \
-              Environment=${ENVIRONMENT} \
-              CorsOrigin=${CORS_ORIGIN} \
-            --capabilities CAPABILITY_IAM \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset
+          # Use environment-specific settings from samconfig.toml (stack name, region, parameter overrides, etc.)
+          sam deploy --config-env "${ENVIRONMENT}"
 
       - name: Get Lambda Function URL
         run: |
