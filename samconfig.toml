@@ -23,7 +23,7 @@ confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
 parameter_overrides = [
     "Environment=staging",
-    "CorsOrigin=https://app-staging.moneyzent.com"
+    "CorsOrigin=https://moneyzent-web-app-env-staging-bhavs-projects-9f9744bc.vercel.app"
 ]
 
 [prod.deploy.parameters]
