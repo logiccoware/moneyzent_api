@@ -1,0 +1,69 @@
+name: Run Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run migrations against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '24'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials from Secrets Manager
+        id: secrets
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          SECRET_NAME="${ENVIRONMENT}/moneyzent/api"
+          
+          DATABASE_URL=$(aws secretsmanager get-secret-value \
+            --secret-id "$SECRET_NAME" \
+            --query 'SecretString' \
+            --output text | jq -r '.DATABASE_URL')
+          
+          echo "::add-mask::$DATABASE_URL"
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_OUTPUT
+
+      - name: Run migrations
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ steps.secrets.outputs.DATABASE_URL }}
+        run: npm run migration:run:prod
+
+      - name: Migration complete
+        run: |
+          echo "Migrations completed successfully for ${{ github.event.inputs.environment }}"

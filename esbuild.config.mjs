@@ -4,7 +4,7 @@ await esbuild.build({
 	entryPoints: ["dist/lambda.js"],
 	bundle: true,
 	platform: "node",
-	target: "node20",
+	target: "node24",
 	format: "esm",
 	outfile: "dist/bundle.mjs",
 	external: [
