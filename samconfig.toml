@@ -14,7 +14,7 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-fail_on_empty_changeset = false
+gitfail_on_empty_changeset = false
 
 [staging.deploy.parameters]
 stack_name = "moneyzent-api-staging"
@@ -22,6 +22,8 @@ s3_prefix = "moneyzent-api-staging"
 region = "us-east-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+fail_on_empty_changeset = false
 parameter_overrides = [
     "Environment=staging",
     "CorsOrigin=https://moneyzent-web-app-env-staging-bhavs-projects-9f9744bc.vercel.app"
@@ -33,6 +35,8 @@ s3_prefix = "moneyzent-api-prod"
 region = "us-east-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+fail_on_empty_changeset = false
 parameter_overrides = [
     "Environment=prod",
     "CorsOrigin=https://app.moneyzent.com"
