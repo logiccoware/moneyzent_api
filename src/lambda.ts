@@ -1,5 +1,4 @@
 import { configure as serverlessExpress } from "@codegenie/serverless-express";
-import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { ExpressAdapter } from "@nestjs/platform-express";
 import type { Handler } from "aws-lambda";
@@ -32,15 +31,10 @@ async function bootstrap(): Promise<Handler> {
 	const logger = app.get(Logger);
 	app.useLogger(logger);
 
-	const configService = app.get(ConfigService);
-
 	app.use(helmet());
 	app.use(compression());
-
-	app.enableCors({
-		origin: configService.get("CORS_ORIGIN"),
-		credentials: true,
-	});
+	// CORS is handled by the Lambda Function URL `FunctionUrlConfig.Cors`.
+	// Enabling CORS here would result in duplicate `Access-Control-Allow-Origin` headers.
 
 	app.use("/auth", toNodeHandler(auth));
 	app.use(json());
