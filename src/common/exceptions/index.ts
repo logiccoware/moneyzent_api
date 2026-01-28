@@ -13,7 +13,7 @@ export class EntityNotFound extends BaseException {
 	readonly statusCode = HttpStatus.NOT_FOUND;
 
 	constructor(entity: string, id: string) {
-		super(`${entity} with id ${id} not found`);
+		super(`${entity} with id:${id} not found`);
 	}
 }
 
