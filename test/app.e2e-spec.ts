@@ -16,6 +16,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/health (GET)', () => {
+    expect(process.env.APP_ENV).toBe('test');
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
