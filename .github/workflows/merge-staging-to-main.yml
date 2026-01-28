@@ -52,4 +52,20 @@ jobs:
             PR_NUMBER="$(gh pr view "${PR_URL}" --json number --jq '.number')"
           fi
 
-          gh pr merge "${PR_NUMBER}" --merge --auto
+          MERGE_STATE_STATUS="$(gh pr view "${PR_NUMBER}" --json mergeStateStatus --jq '.mergeStateStatus')"
+          echo "PR #${PR_NUMBER} mergeStateStatus=${MERGE_STATE_STATUS}"
+
+          # If the PR is already mergeable (CLEAN), merge immediately.
+          # Using --auto here can fail when the repo has auto-merge disabled at the org/repo level.
+          if [ "${MERGE_STATE_STATUS}" = "CLEAN" ]; then
+            gh pr merge "${PR_NUMBER}" --merge
+            exit 0
+          fi
+
+          # Otherwise, try enabling auto-merge (if supported), and fall back to an immediate merge attempt.
+          if gh pr merge "${PR_NUMBER}" --merge --auto; then
+            exit 0
+          fi
+
+          echo "Auto-merge failed; attempting immediate merge."
+          gh pr merge "${PR_NUMBER}" --merge
