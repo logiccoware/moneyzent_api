@@ -15,12 +15,27 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"suspicious": {
+				"noExplicitAny": "off"
+			},
 			"recommended": true,
 			"style": {
 				"useImportType": "off"
 			}
 		}
 	},
+	"overrides": [
+		{
+			"includes": ["**/*.module.ts"],
+			"linter": {
+				"rules": {
+					"complexity": {
+						"noStaticOnlyClass": "off"
+					}
+				}
+			}
+		}
+	],
 	"javascript": {
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true

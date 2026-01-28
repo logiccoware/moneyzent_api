@@ -27,10 +27,6 @@ export class EntityAlreadyExists extends BaseException {
 
 export class InvalidOperation extends BaseException {
 	readonly statusCode = HttpStatus.BAD_REQUEST;
-
-	constructor(message: string) {
-		super(message);
-	}
 }
 
 export class Forbidden extends BaseException {

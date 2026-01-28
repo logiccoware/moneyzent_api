@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, ILike } from "typeorm";
+import { Repository } from "typeorm";
 import { TagEntity } from "@/modules/tag/tag.entity";
 import { TTagCreateDtoReq, TTagUpdateDtoReq } from "@/modules/tag/dto/req";
 import { TTagResDto, TagResDtoSchema } from "@/modules/tag/dto/res";

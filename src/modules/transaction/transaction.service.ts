@@ -217,7 +217,13 @@ export class TransactionService {
 				relations: ["splits", "splits.lineItems", "splits.lineItems.tags"],
 			});
 
-			return this._toResDto(result!);
+			if (!result) {
+				throw new Error(
+					`Transaction ${savedTransaction.id} was created but could not be reloaded`,
+				);
+			}
+
+			return this._toResDto(result);
 		});
 	}
 
@@ -332,7 +338,13 @@ export class TransactionService {
 				relations: ["splits", "splits.lineItems", "splits.lineItems.tags"],
 			});
 
-			return this._toResDto(result!);
+			if (!result) {
+				throw new Error(
+					`Transaction ${transaction.id} was updated but could not be reloaded`,
+				);
+			}
+
+			return this._toResDto(result);
 		});
 	}
 
