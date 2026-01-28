@@ -12,6 +12,10 @@ Parameters:
   CorsOrigin:
     Type: String
     Description: Allowed CORS origin for the frontend
+  DeployNonce:
+    Type: String
+    Default: ""
+    Description: Unique value to force stack updates
 
 Globals:
   Function:
@@ -49,6 +53,7 @@ Resources:
           NODE_ENV: production
           APP_ENV: !Ref Environment
           CORS_ORIGIN: !Ref CorsOrigin
+          DEPLOY_NONCE: !Ref DeployNonce
           DATABASE_URL: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:DATABASE_URL}}"
           BETTER_AUTH_SECRET: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:BETTER_AUTH_SECRET}}"
           BETTER_AUTH_URL: !Sub "{{resolve:secretsmanager:${Environment}/moneyzent/api:SecretString:BETTER_AUTH_URL}}"
