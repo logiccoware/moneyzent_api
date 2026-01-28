@@ -63,8 +63,9 @@ jobs:
         run: sam build
 
       - name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
         run: |
-          ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
           PARAM_OVERRIDES=$(python - <<'PY'
           import os
           import shlex
@@ -90,8 +91,9 @@ jobs:
             --parameter-overrides ${PARAM_OVERRIDES}
 
       - name: Get Lambda Function URL
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
         run: |
-          ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
           FUNCTION_URL=$(aws cloudformation describe-stacks \
             --stack-name moneyzent-api-${ENVIRONMENT} \
             --query 'Stacks[0].Outputs[?OutputKey==`FunctionUrl`].OutputValue' \
