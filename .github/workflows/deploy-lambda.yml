@@ -65,10 +65,29 @@ jobs:
       - name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
         run: |
           ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
+          PARAM_OVERRIDES=$(python - <<'PY'
+          import os
+          import shlex
+          import tomllib
+          
+          env = os.environ.get("ENVIRONMENT", "staging")
+          with open("samconfig.toml", "rb") as file:
+              data = tomllib.load(file)
+          
+          params = (
+              data.get(env, {})
+              .get("deploy", {})
+              .get("parameters", {})
+              .get("parameter_overrides", [])
+          )
+          params = list(params)
+          params.append(f"DeployNonce={os.environ.get('GITHUB_RUN_ID', '')}")
+          print(" ".join(shlex.quote(p) for p in params))
+          PY
+          )
           # Use environment-specific settings from samconfig.toml (stack name, region, parameter overrides, etc.)
           sam deploy --config-env "${ENVIRONMENT}" --no-confirm-changeset \
-            --parameter-overrides \
-              "DeployNonce=${{ github.run_id }}"
+            --parameter-overrides ${PARAM_OVERRIDES}
 
       - name: Get Lambda Function URL
         run: |
