@@ -1,17 +1,17 @@
 import {
 	CanActivate,
 	ExecutionContext,
-	Injectable,
-	Inject,
-	UnauthorizedException,
 	ForbiddenException,
+	Inject,
+	Injectable,
+	UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
-import { AUTH_OPTIONS, AuthModuleOptions } from "../types";
 import { ALLOW_ANONYMOUS_KEY } from "../decorators/allow-anonymous.decorator";
 import { OPTIONAL_AUTH_KEY } from "../decorators/optional-auth.decorator";
 import { ROLES_KEY } from "../decorators/roles.decorator";
+import { AUTH_OPTIONS, AuthModuleOptions } from "../types";
 
 @Injectable()
 export class AuthGuard implements CanActivate {

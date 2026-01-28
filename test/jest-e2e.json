@@ -6,7 +6,9 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "setupFiles": ["<rootDir>/jest-e2e.setup.ts"],
   "moduleNameMapper": {
+    "^@/lib/auth$": "<rootDir>/mocks/auth.ts",
     "^@/(.*)$": "<rootDir>/../src/$1"
   }
 }
