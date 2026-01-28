@@ -66,7 +66,7 @@ jobs:
         run: |
           ENVIRONMENT="${{ github.event.inputs.environment || 'staging' }}"
           # Use environment-specific settings from samconfig.toml (stack name, region, parameter overrides, etc.)
-          sam deploy --config-env "${ENVIRONMENT}"
+          sam deploy --config-env "${ENVIRONMENT}" --no-confirm-changeset
 
       - name: Get Lambda Function URL
         run: |
