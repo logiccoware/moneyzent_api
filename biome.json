@@ -15,6 +15,9 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
+			"complexity": {
+				"noUselessEmptyExport": "off"
+			},
 			"suspicious": {
 				"noExplicitAny": "off"
 			},
