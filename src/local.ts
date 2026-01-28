@@ -29,9 +29,11 @@ async function bootstrap() {
 		credentials: true,
 	});
 
-	app.use("/auth", toNodeHandler(auth));
+	// Parse request bodies before handing off to better-auth.
+	// Middleware order matters: if `/auth` is mounted first, req.body will be undefined.
 	app.use(json());
 	app.use(urlencoded({ extended: true }));
+	app.use("/auth", toNodeHandler(auth));
 
 	app.useGlobalFilters(
 		app.get(AllExceptionsFilter),
