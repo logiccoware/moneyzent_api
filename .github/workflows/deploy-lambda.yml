@@ -1,4 +1,5 @@
-name: Deploy Lambda
+name: Lambda Deploy
+run-name: Lambda Deploy - ${{ github.event.inputs.environment || 'staging' }}
 
 on:
   workflow_dispatch:
