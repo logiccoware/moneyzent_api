@@ -13,6 +13,10 @@ export const envSchema = z.object({
 	BETTER_AUTH_URL: z.string().min(1, "BETTER_AUTH_URL is required"),
 	// CORS
 	CORS_ORIGIN: z.string().min(1, "CORS_ORIGIN is required"),
+	// Swagger
+	SWAGGER_ENABLED: z.boolean().default(false),
+	SWAGGER_BASIC_AUTH_USER: z.string().optional(),
+	SWAGGER_BASIC_AUTH_PASS: z.string().optional(),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;

@@ -8,6 +8,7 @@ import * as express from "express";
 import { json, urlencoded } from "express";
 import helmet from "helmet";
 import { Logger } from "nestjs-pino";
+import { setupSwagger } from "@/common/config/swagger.config";
 import { AllExceptionsFilter } from "@/common/filters/all-exceptions.filter";
 import { BaseExceptionFilter } from "@/common/filters/base-exception.filter";
 import { auth } from "@/lib/auth";
@@ -41,6 +42,8 @@ async function bootstrap(): Promise<Handler> {
 	app.use(json());
 	app.use(urlencoded({ extended: true }));
 	app.use("/auth", toNodeHandler(auth));
+
+	setupSwagger(app);
 
 	app.useGlobalFilters(
 		app.get(AllExceptionsFilter),

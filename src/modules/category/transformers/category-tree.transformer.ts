@@ -1,6 +1,6 @@
 import {
-	TCategoryTreeResDto,
 	CategoryTreeResDtoSchema,
+	TCategoryTreeResDto,
 } from "@/modules/category/dto/res";
 
 interface CategoryDoc {
