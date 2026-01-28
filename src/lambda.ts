@@ -36,9 +36,11 @@ async function bootstrap(): Promise<Handler> {
 	// CORS is handled by the Lambda Function URL `FunctionUrlConfig.Cors`.
 	// Enabling CORS here would result in duplicate `Access-Control-Allow-Origin` headers.
 
-	app.use("/auth", toNodeHandler(auth));
+	// Parse request bodies before handing off to better-auth.
+	// Middleware order matters: if `/auth` is mounted first, req.body will be undefined.
 	app.use(json());
 	app.use(urlencoded({ extended: true }));
+	app.use("/auth", toNodeHandler(auth));
 
 	app.useGlobalFilters(
 		app.get(AllExceptionsFilter),
