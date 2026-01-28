@@ -1,3 +1,9 @@
+import type { AuthModuleOptions } from "@/modules/auth/types";
+
+type AuthSession = Awaited<
+	ReturnType<AuthModuleOptions["auth"]["api"]["getSession"]>
+>;
+
 declare global {
 	namespace NodeJS {
 		interface ProcessEnv {
@@ -9,6 +15,14 @@ declare global {
 			CORS_ORIGIN: string;
 		}
 	}
-}
 
-export {};
+	namespace Express {
+		interface Request {
+			/**
+			 * Populated by `AuthGuard` after successful authentication.
+			 * `null` when `@OptionalAuth()` is used and no session is present.
+			 */
+			session?: AuthSession | null;
+		}
+	}
+}

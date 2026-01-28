@@ -46,14 +46,14 @@ export class AuthGuard implements CanActivate {
 
 		if (!session) {
 			if (optionalAuth) {
-				request["session"] = null;
+				request.session = null;
 				return true;
 			}
 			throw new UnauthorizedException("Authentication required");
 		}
 
 		// Attach session to request
-		request["session"] = session;
+		request.session = session;
 
 		// Check for @Roles decorator on handler or class
 		const requiredRoles = this.reflector.getAllAndOverride<string[]>(

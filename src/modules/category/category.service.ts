@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, IsNull } from "typeorm";
+import { Repository } from "typeorm";
 import { CategoryEntity } from "@/modules/category/category.entity";
 import {
 	TCategoryCreateDtoReq,
@@ -14,7 +14,7 @@ import {
 } from "@/modules/category/dto/res";
 import { EntityNotFound, InvalidOperation } from "@/common/exceptions";
 import { ENTITY } from "@/common/constants";
-import { CategoryTreeTransformer } from "./transformers/category-tree.transformer";
+import { transformCategoryTree } from "./transformers/category-tree.transformer";
 
 @Injectable()
 export class CategoryService {
@@ -75,7 +75,7 @@ export class CategoryService {
 			parentId: category.parentId,
 		}));
 
-		return CategoryTreeTransformer.transform(categoryDocs);
+		return transformCategoryTree(categoryDocs);
 	}
 
 	async create(
