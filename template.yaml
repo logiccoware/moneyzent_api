@@ -16,6 +16,9 @@ Parameters:
     Type: String
     Default: ""
     Description: Unique value to force stack updates
+  ApiDomainName:
+    Type: String
+    Description: Custom domain name for the API (e.g. api-staging.moneyzent.com)
 
 Globals:
   Function:
@@ -70,6 +73,44 @@ Resources:
     Metadata:
       BuildMethod: makefile
 
+  ApiCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref ApiDomainName
+      ValidationMethod: DNS
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub ${Environment}-moneyzent-api
+        Aliases:
+          - !Ref ApiDomainName
+        Origins:
+          - Id: LambdaFunctionUrl
+            DomainName: !Select [2, !Split ["/", !GetAtt ApiFunctionUrl.FunctionUrl]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: LambdaFunctionUrl
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # CachingDisabled
+          OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac # AllViewerExceptHostHeader
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ApiCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        HttpVersion: http2and3
+
 Outputs:
   FunctionUrl:
     Description: Lambda Function URL (use this as your API endpoint)
@@ -78,3 +119,11 @@ Outputs:
   FunctionArn:
     Description: Lambda Function ARN
     Value: !GetAtt ApiFunction.Arn
+
+  CloudFrontDomainName:
+    Description: CloudFront distribution domain name (set CNAME to this at your DNS provider)
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  ApiDomain:
+    Description: Custom API domain
+    Value: !Ref ApiDomainName
