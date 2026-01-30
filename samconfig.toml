@@ -26,7 +26,8 @@ resolve_s3 = true
 fail_on_empty_changeset = false
 parameter_overrides = [
     "Environment=staging",
-    "CorsOrigin=https://app-staging.moneyzent.com"
+    "CorsOrigin=https://app-staging.moneyzent.com",
+    "ApiDomainName=api-staging.moneyzent.com"
 ]
 
 [prod.deploy.parameters]
@@ -39,5 +40,6 @@ resolve_s3 = true
 fail_on_empty_changeset = false
 parameter_overrides = [
     "Environment=prod",
-    "CorsOrigin=https://app.moneyzent.com"
+    "CorsOrigin=https://app.moneyzent.com",
+    "ApiDomainName=api-prod.moneyzent.com"
 ]
