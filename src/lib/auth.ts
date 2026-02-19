@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
-import { Pool } from "@neondatabase/serverless";
 import { config } from "dotenv";
+import { Pool } from "pg";
 
 config();
 

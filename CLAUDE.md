@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Moneyzent API — a personal finance REST API built with NestJS 11, TypeScript 5, and PostgreSQL 17. Deployed as an AWS Lambda function via SAM. Authentication is session-based using Better Auth (not NextAuth).
+Moneyzent API — a personal finance REST API built with NestJS 11, TypeScript 5, and PostgreSQL 17. Deployed in Render. Authentication is session-based using Better Auth (not NextAuth).
 
 ## Commands
 
 ```bash
 # Development
 npm run dev                    # Start local server (ts-node, port 3000)
-npm run build                  # NestJS compile + ESBuild bundle for Lambda
+npm run build                  # NestJS compile 
 
 # Linting & Formatting (Biome)
 npm run lint                   # Check lint errors
@@ -34,14 +34,6 @@ npm run migration:revert       # Revert last migration
 ```
 
 ## Architecture
-
-### Entry Points
-
-- `src/local.ts` — Local dev server with Express, CORS, and Swagger
-- `src/lambda.ts` — AWS Lambda handler using `@codegenie/serverless-express`; caches the NestJS app across warm invocations
-- `src/data-source.ts` — TypeORM DataSource for CLI migrations (separate from NestJS DI)
-
-Both entry points share the same middleware stack: Helmet, compression, body parsing, then Better Auth mounted at `/auth`. Body parsers **must** be registered before the `/auth` route or `req.body` will be undefined.
 
 ### Module Structure
 
@@ -75,7 +67,7 @@ Custom exceptions extend `BaseException` (which sets statusCode). Two global fil
 
 ### Deployment
 
-AWS Lambda (arm64, 1024MB, 30s timeout) with Function URL. Built with ESBuild into a single `dist/bundle.mjs`. SAM template in `template.yaml`, config in `samconfig.toml` (staging/prod stacks). Secrets (DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL) stored in AWS Secrets Manager.
+TBD
 
 ## Code Conventions
 
