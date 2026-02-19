@@ -9,8 +9,11 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "build": "nest build && node esbuild.config.mjs",
-    "dev": "ts-node -r tsconfig-paths/register src/local.ts",
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
     "format": "biome format --write",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",
@@ -29,9 +32,6 @@
     "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.750.0",
-    "@codegenie/serverless-express": "^4.16.0",
-    "@neondatabase/serverless": "^0.10.0",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.11",
@@ -58,7 +58,6 @@
     "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.11",
-    "@types/aws-lambda": "^8.10.149",
     "@types/compression": "^1.8.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
@@ -92,7 +91,6 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s",
       "!**/*.module.ts",
-      "!**/lambda.ts",
       "!**/index.ts"
     ],
     "coverageDirectory": "../coverage",

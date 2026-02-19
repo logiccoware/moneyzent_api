@@ -1,9 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { Module } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { APP_GUARD } from "@nestjs/core";
-import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { LoggerModule } from "nestjs-pino";
 import { EnvConfig, validate } from "@/common/config/env.config";
 import { AllExceptionsFilter } from "@/common/filters/all-exceptions.filter";
 import { BaseExceptionFilter } from "@/common/filters/base-exception.filter";
@@ -17,6 +11,12 @@ import { PayeeModule } from "@/modules/payee/payee.module";
 import { ReportModule } from "@/modules/report/report.module";
 import { TagModule } from "@/modules/tag/tag.module";
 import { TransactionModule } from "@/modules/transaction/transaction.module";
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { LoggerModule } from "nestjs-pino";
+import { randomUUID } from "node:crypto";
 
 @Module({
 	controllers: [AppController],
@@ -39,7 +39,6 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 			useFactory: (configService: ConfigService<EnvConfig, true>) => {
 				const appEnv = configService.get("APP_ENV");
 				const isDevelopment = appEnv === "development";
-				const isDeployed = appEnv === "prod" || appEnv === "staging";
 
 				return {
 					pinoHttp: {
@@ -71,13 +70,6 @@ import { TransactionModule } from "@/modules/transaction/transaction.module";
 								statusCode: res.statusCode,
 							}),
 						},
-						// Add Lambda context to logs in deployed environments
-						mixin: isDeployed
-							? () => ({
-									awsRequestId: process.env._X_AMZN_TRACE_ID,
-									functionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-								})
-							: undefined,
 						autoLogging: {
 							ignore: (req) => req.url === "/health",
 						},
