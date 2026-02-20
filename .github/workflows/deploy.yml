@@ -100,7 +100,6 @@ jobs:
           image: ${{ env.image_uri }}
           env_vars: |
             APP_ENV=${{ inputs.environment }}
-            PORT=3000
             NODE_ENV=production
             DATABASE_POOL_SIZE=10
             SWAGGER_ENABLED=${{ inputs.environment == 'prod' && 'false' || 'true' }}
