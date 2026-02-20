@@ -1,7 +1,8 @@
 import { envSchema, validate } from "@/common/config/env.config";
 
 describe("env config validation", () => {
-	const requiredConfig = {
+		const requiredConfig = {
+		DATABASE_POOL_SIZE: 10,
 		DATABASE_URL: "postgres://user:pass@localhost:5432/db",
 		BETTER_AUTH_SECRET: "secret",
 		BETTER_AUTH_URL: "http://localhost:3000",

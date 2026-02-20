@@ -8,6 +8,7 @@ export const envSchema = z.object({
 	PORT: z.coerce.number().int().positive().optional().default(3000),
 	// PostgreSQL
 	DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+	DATABASE_POOL_SIZE: z.coerce.number().int().positive(),
 	// Better Auth
 	BETTER_AUTH_SECRET: z.string().min(1, "BETTER_AUTH_SECRET is required"),
 	BETTER_AUTH_URL: z.string().min(1, "BETTER_AUTH_URL is required"),
