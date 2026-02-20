@@ -10,7 +10,7 @@ Moneyzent API — a personal finance REST API built with NestJS 11, TypeScript 5
 
 ```bash
 # Development
-npm run dev                    # Start local server (ts-node, port 3000)
+npm run start:dev              # Start local server (port 3000)
 npm run build                  # NestJS compile 
 
 # Linting & Formatting (Biome)
