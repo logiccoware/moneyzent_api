@@ -67,7 +67,7 @@ Custom exceptions extend `BaseException` (which sets statusCode). Two global fil
 
 ### Deployment
 
-TBD
+Google Cloud Run via GitHub Actions (`workflow_dispatch`). Single GCP project `moneyzent` with two services: `moneyzent-api-staging` and `moneyzent-api-prod`. Docker images stored in Artifact Registry (`us-east1`). Auth via Workload Identity Federation (no JSON keys). See `docs/deployment.md` for full setup details and `.github/workflows/deploy.yml` for the workflow.
 
 ## Code Conventions
 

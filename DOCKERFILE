@@ -1,21 +1,29 @@
-FROM node:lts-alpine3.19
+# ---- Stage 1: Build ----
+FROM node:24-alpine AS build
 
-# Create and set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy the rest of the application code to the working directory
 COPY . .
 
-# Build the application
 RUN npm run build
 
-# Expose port and start application
+# ---- Stage 2: Production ----
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+USER node
+
 EXPOSE 3000
 
-CMD [ "node", "dist/main.js" ]
+CMD ["node", "dist/main.js"]

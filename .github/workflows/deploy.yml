@@ -1,0 +1,133 @@
+name: Deploy to Cloud Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - prod
+      ref:
+        description: "Branch, tag, or commit SHA to deploy (leave empty for default)"
+        required: false
+        type: string
+
+env:
+  GCP_PROJECT_ID: moneyzent
+  GCP_REGION: us-east1
+  AR_REPO: moneyzent-api
+  IMAGE_NAME: moneyzent-api
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    environment: ${{ inputs.environment }}
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      # ── Resolve which ref to check out ──────────────────────────────────
+      - name: Resolve ref
+        id: resolve-ref
+        run: |
+          INPUT_REF="${{ inputs.ref }}"
+          ENV="${{ inputs.environment }}"
+
+          if [ -n "${INPUT_REF}" ]; then
+            echo "ref=${INPUT_REF}" >> "$GITHUB_OUTPUT"
+          elif [ "${ENV}" = "prod" ]; then
+            echo "ref=main" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.resolve-ref.outputs.ref }}
+
+      # ── Authenticate to GCP ─────────────────────────────────────────────
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      # ── Configure Docker for Artifact Registry ──────────────────────────
+      - name: Configure Docker
+        run: |
+          echo '${{ steps.auth.outputs.access_token }}' | \
+            docker login -u oauth2accesstoken --password-stdin \
+            https://${{ env.GCP_REGION }}-docker.pkg.dev
+
+      # ── Build & push Docker image ───────────────────────────────────────
+      - name: Build and push image
+        run: |
+          IMAGE_URI="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/${IMAGE_NAME}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+
+          docker build \
+            --tag "${IMAGE_URI}:${SHORT_SHA}" \
+            --tag "${IMAGE_URI}:${{ inputs.environment }}-latest" \
+            .
+
+          docker push "${IMAGE_URI}:${SHORT_SHA}"
+          docker push "${IMAGE_URI}:${{ inputs.environment }}-latest"
+
+          echo "image_uri=${IMAGE_URI}:${SHORT_SHA}" >> "$GITHUB_ENV"
+
+      # ── Deploy to Cloud Run ─────────────────────────────────────────────
+      - name: Deploy to Cloud Run
+        env:
+          ENV: ${{ inputs.environment }}
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.IMAGE_NAME }}-${{ inputs.environment }}
+          region: ${{ env.GCP_REGION }}
+          image: ${{ env.image_uri }}
+          env_vars: |
+            APP_ENV=${{ inputs.environment }}
+            PORT=3000
+            NODE_ENV=production
+            DATABASE_POOL_SIZE=10
+            SWAGGER_ENABLED=${{ inputs.environment == 'prod' && 'false' || 'true' }}
+          secrets: |
+            DATABASE_URL=${{ inputs.environment }}_DATABASE_URL:latest
+            BETTER_AUTH_SECRET=${{ inputs.environment }}_BETTER_AUTH_SECRET:latest
+            BETTER_AUTH_URL=${{ inputs.environment }}_BETTER_AUTH_URL:latest
+            CORS_ORIGIN=${{ inputs.environment }}_CORS_ORIGIN:latest
+          flags: |
+            --allow-unauthenticated
+            --port=3000
+            --memory=512Mi
+            --cpu=1
+            --min-instances=0
+            --max-instances=3
+            --concurrency=80
+
+      # ── Summary ─────────────────────────────────────────────────────────
+      - name: Print deployment summary
+        run: |
+          echo "## Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Detail | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Environment** | \`${{ inputs.environment }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Ref** | \`${{ steps.resolve-ref.outputs.ref }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Commit** | \`${GITHUB_SHA::7}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Image** | \`${image_uri}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Service** | \`${{ env.IMAGE_NAME }}-${{ inputs.environment }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| **Region** | \`${{ env.GCP_REGION }}\` |" >> "$GITHUB_STEP_SUMMARY"

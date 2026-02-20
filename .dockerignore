@@ -1,0 +1,53 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+build
+
+# Source control
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Tests
+test
+coverage
+.nyc_output
+**/*.spec.ts
+
+# Documentation
+docs
+README.md
+CLAUDE.md
+
+# IDE / editor
+.vscode
+.idea
+.project
+.settings
+*.sublime-workspace
+
+# CI / tooling
+.github
+.husky
+.claude
+biome.json
+mise.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Docker
+Dockerfile
+.dockerignore
