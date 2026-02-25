@@ -103,11 +103,16 @@ jobs:
             NODE_ENV=production
             DATABASE_POOL_SIZE=10
             SWAGGER_ENABLED=${{ inputs.environment == 'prod' && 'false' || 'true' }}
+            OTEL_ENABLED=${{ inputs.environment == 'prod' && 'true' || 'false' }}
+            OTEL_SERVICE_NAME=${{ env.IMAGE_NAME }}-${{ inputs.environment }}
+            OTEL_EXPORTER_OTLP_ENDPOINT=https://ingress.us-west-2.aws.dash0.com
+            OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
           secrets: |
             DATABASE_URL=${{ inputs.environment }}_DATABASE_URL:latest
             BETTER_AUTH_SECRET=${{ inputs.environment }}_BETTER_AUTH_SECRET:latest
             BETTER_AUTH_URL=${{ inputs.environment }}_BETTER_AUTH_URL:latest
             CORS_ORIGIN=${{ inputs.environment }}_CORS_ORIGIN:latest
+            OTEL_EXPORTER_OTLP_HEADERS=${{ inputs.environment }}_OTEL_EXPORTER_OTLP_HEADERS:latest
           flags: |
             --allow-unauthenticated
             --port=3000
