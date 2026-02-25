@@ -26,4 +26,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["node", "--require", "dist/instrumentation.js", "dist/main.js"]
+CMD ["node", "--require", "./dist/instrumentation.js", "dist/main.js"]
