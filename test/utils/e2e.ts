@@ -51,13 +51,6 @@ export async function createE2eContext(): Promise<E2eContext> {
 }
 
 export async function destroyE2eContext(context: E2eContext) {
-	await context.dataSource.query(
-		`DELETE FROM financial_account WHERE user_id = $1`,
-		[context.userId],
-	);
-	await context.dataSource.query(`DELETE FROM payee WHERE user_id = $1`, [
-		context.userId,
-	]);
 	await context.dataSource.query(`DELETE FROM "user" WHERE id = $1`, [
 		context.userId,
 	]);
